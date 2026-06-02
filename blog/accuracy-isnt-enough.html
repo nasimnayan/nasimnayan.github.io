@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Why Accuracy Isn't Enough: The Case for Trustworthy Medical AI — Nasim Mahmud Nayan</title>
+<meta name="description" content="A model can be 99% accurate and still fail the patients who need it most. How fairness, transparency, and reliability change what we build." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css?v=4" />
+<link rel="stylesheet" href="blog.css" />
+</head>
+<body>
+<nav class="nav scrolled" id="nav">
+  <a href="../index.html" class="brand"><span class="dot"></span>Nasim&nbsp;M.&nbsp;Nayan</a>
+  <div class="links" id="navlinks">
+    <a href="../index.html#about">About</a>
+    <a href="../index.html#publications">Publications</a>
+    <a href="../index.html#research">Research</a>
+    <a href="../index.html#projects">Projects</a>
+    <a href="../index.html#industry">Industry</a>
+    <a href="../index.html#skills">Skills</a>
+    <a href="../index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="blog-header">
+    <a href="../index.html#writing" class="blog-back">Back to Writing</a>
+    <div class="blog-kicker">
+      <span class="chip chip-fill">Trustworthy AI</span>
+      <span class="chip chip-fill">Healthcare</span>
+      <span class="chip chip-fill">Fairness</span>
+    </div>
+    <h1 class="blog-title">Why Accuracy Isn't Enough: The Case for Trustworthy Medical AI</h1>
+    <div class="blog-meta">May 2026 · 6 min read · Nasim Mahmud Nayan</div>
+    <p class="blog-lede">A model can be 99% accurate and still systematically fail the patients who need it most. The gap between benchmark performance and real-world trustworthiness is where medical AI most often breaks down — and where the next generation of research needs to focus.</p>
+  </div>
+
+  <div class="blog-body">
+
+    <p>When I published my first paper on diabetes diagnosis using machine learning, I was proud of the accuracy numbers. The model performed well on standard benchmarks. But as I dug deeper into the data, I found something troubling: the model's confident predictions were hiding a structural problem. The dataset was severely imbalanced — diabetic patients accounted for a small fraction of the training examples. The model had learned to be "accurate" by being overly cautious about predicting the minority class, the very class that mattered most clinically.</p>
+
+    <p>That experience shaped how I think about medical AI. <strong>Accuracy is a measure of average performance. Medicine, by its nature, is not average.</strong> It is a discipline of edge cases, vulnerable populations, and individual patients whose lives depend on getting it right — not just most of the time, but reliably, fairly, and with appropriate uncertainty.</p>
+
+    <h2>The Accuracy Illusion</h2>
+
+    <p>Consider a dataset where 95% of patients are healthy. A model that predicts "healthy" for everyone achieves 95% accuracy — while failing every single sick patient. This is an extreme example, but the underlying problem appears in subtler forms throughout medical AI research.</p>
+
+    <p>In our work on diabetes diagnosis, we addressed this directly using <strong>SMOTE oversampling and Near-Miss undersampling</strong> to correct the class imbalance before training. The result was a model that performed substantially better on minority-class examples — the diabetic patients — even if the aggregate accuracy metric looked similar. The difference was clinically significant: patients who would have been missed were now correctly flagged for further evaluation.</p>
+
+    <figure class="article-fig">
+      <div class="fig-img">
+        <div class="fig-placeholder">
+          <span>Class Imbalance: Before vs. After SMOTE</span>
+          <span style="font-size:0.75rem;opacity:.6;">Conceptual illustration of data distribution</span>
+        </div>
+      </div>
+      <figcaption>Applying SMOTE oversampling to a diabetic patient dataset transforms a skewed distribution into one where the model can learn minority-class patterns effectively.</figcaption>
+    </figure>
+
+    <p>But correcting class imbalance is only the beginning. Even on balanced datasets, medical AI models can encode and amplify societal biases present in historical clinical data — biases around race, gender, socioeconomic status, and geography. A model trained primarily on data from urban hospitals in high-income countries will not generalize equitably to rural patients in developing regions. I have seen this problem firsthand in maternal health research across Bangladesh.</p>
+
+    <h2>Three Pillars of Trustworthy Medical AI</h2>
+
+    <p>Through my research across diabetes, maternal health, Parkinson's disease, and chest imaging, I have come to think about trustworthiness along three distinct axes:</p>
+
+    <h3>1. Fairness</h3>
+    <p>A trustworthy model must perform equitably across demographic groups. This means measuring disparities in sensitivity, specificity, and predictive value across subgroups — not just reporting aggregate AUC. In our maternal health work, we found that ensemble models trained without bias correction showed up to <strong>34% higher error rates</strong> for certain demographic subgroups. After applying fairness-aware training, that gap narrowed substantially. Fairness is not a post-hoc correction; it must be designed into the pipeline from the start.</p>
+
+    <h3>2. Transparency</h3>
+    <p>Clinical decision-makers — doctors, nurses, public health officials — need to understand why a model made a prediction before they can responsibly act on it. Black-box models, however accurate, are practically unusable in high-stakes clinical settings. In our Parkinson's disease prediction framework published in PLOS ONE, we integrated <strong>Explainable AI (XAI)</strong> methods to surface the features driving each prediction. Clinicians could see, for instance, that a high-risk prediction was driven primarily by voice tremor features — grounding the model output in clinically interpretable evidence.</p>
+
+    <div class="pull-quote">
+      <p>"A model that cannot explain itself cannot be trusted. In clinical settings, 'black box' is not a feature — it is a liability."</p>
+    </div>
+
+    <h3>3. Reliability Under Distribution Shift</h3>
+    <p>Medical AI models are trained on historical data and deployed in a shifting world. Patient populations change. Disease prevalence changes. Data collection practices change. A model that performs well at training time may degrade silently in production. Reliable medical AI must incorporate uncertainty estimation — flagging predictions the model is unsure about — and must be monitored continuously for performance drift.</p>
+
+    <h2>What This Means in Practice</h2>
+
+    <div class="stat-callout">
+      <div class="sc-item"><span class="sc-num">34%</span><span class="sc-lbl">Bias Reduction<br>(Maternal Health)</span></div>
+      <div class="sc-item"><span class="sc-num">30.8%</span><span class="sc-lbl">Bias Reduced<br>(M-TRUST Toolkit)</span></div>
+      <div class="sc-item"><span class="sc-num">99%</span><span class="sc-lbl">Accuracy Achieved<br>(without fairness)</span></div>
+    </div>
+
+    <p>These numbers tell a more nuanced story when read together. The maternal health model hit 99% accuracy — but without fairness-aware training, that accuracy masked a 34% higher error rate for specific subgroups. After applying our fairness correction methods, the aggregate accuracy dropped slightly, but the model became genuinely equitable. That trade-off is the right one to make.</p>
+
+    <p>This is why I built <strong>M-TRUST</strong> — a plug-in Python toolkit designed to detect and mitigate four axes of bias in clinical AI models. The goal was to make trustworthy AI accessible: a one-line wrapper API that integrates bias detection and mitigation into any existing training pipeline, without requiring a fairness PhD to use it.</p>
+
+    <div class="callout">
+      <p><strong>The M-TRUST framework</strong> detects and mitigates bias across four axes: demographic bias (disparities across patient subgroups), annotation bias (label quality differences), quality bias (data collection artifacts), and amplification bias (bias magnified through model training). Each axis requires different detection methods and different mitigations.</p>
+    </div>
+
+    <h2>The Stakes</h2>
+
+    <p>I grew up in rural Bangladesh, where the nearest hospital with reliable diagnostic capability was hours away. For families in those communities, a misdiagnosis was not an inconvenience — it could mean delayed treatment, unnecessary procedures, or worse. When medical AI systems are deployed in settings like this, the margin for systematic error is zero. The populations most likely to be served by AI-powered diagnostic tools — lower-income, rural, underserved — are precisely the populations most likely to be underrepresented in training datasets, and most likely to be harmed by unfair models.</p>
+
+    <p>Accuracy, measured on a benchmark dataset that does not reflect those populations, is not enough. It was never enough. What we need — what the field demands — is a commitment to building AI systems that are accurate <em>and</em> fair, accurate <em>and</em> transparent, accurate <em>and</em> reliable across the full diversity of patients they will serve.</p>
+
+    <p>That is the case for trustworthy medical AI. And it is why the research agenda has to expand beyond optimizing a single metric on a leaderboard.</p>
+
+    <div class="article-end">
+      <img src="../photos/dp.jpeg" alt="Nasim Mahmud Nayan" class="author-photo">
+      <div class="author-info">
+        <div class="author-name">Nasim Mahmud Nayan</div>
+        <div class="author-role">AI Engineer · Healthcare AI Researcher · Deputy Manager, AI &amp; ML at BRAC</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer">
+  <span>© 2026 Nasim Mahmud Nayan</span>
+  <span><span class="dot">●</span> Trustworthy · Healthcare · AI</span>
+  <a href="../index.html" style="color:var(--ink-3)">Back to portfolio →</a>
+</footer>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Grounding LLMs in Evidence: Building Citation-First Clinical RAG — Nasim Mahmud Nayan</title>
+<meta name="description" content="A 'No Source, No Result' approach to retrieval — thematic clustering, NLI fact-checking, and source-level attribution for traceable clinical answers." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css?v=4" />
+<link rel="stylesheet" href="blog.css" />
+</head>
+<body>
+<nav class="nav scrolled" id="nav">
+  <a href="../index.html" class="brand"><span class="dot"></span>Nasim&nbsp;M.&nbsp;Nayan</a>
+  <div class="links" id="navlinks">
+    <a href="../index.html#about">About</a>
+    <a href="../index.html#publications">Publications</a>
+    <a href="../index.html#research">Research</a>
+    <a href="../index.html#projects">Projects</a>
+    <a href="../index.html#industry">Industry</a>
+    <a href="../index.html#skills">Skills</a>
+    <a href="../index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="blog-header">
+    <a href="../index.html#writing" class="blog-back">Back to Writing</a>
+    <div class="blog-kicker">
+      <span class="chip chip-fill">LLM</span>
+      <span class="chip chip-fill">RAG</span>
+      <span class="chip chip-fill">Clinical AI</span>
+    </div>
+    <h1 class="blog-title">Grounding LLMs in Evidence: Building Citation-First Clinical RAG</h1>
+    <div class="blog-meta">Jan 2026 · 7 min read · Nasim Mahmud Nayan</div>
+    <p class="blog-lede">Standard RAG reduces hallucination — it does not eliminate it. For clinical decision support, where a confabulated drug interaction or a wrong dosage can harm patients, "reduced" is not good enough. Here is how we built a system where every answer is traceable to a source, or the system refuses to answer.</p>
+  </div>
+
+  <div class="blog-body">
+
+    <p>Large language models are fluent, confident, and wrong in ways that are very hard to detect. In most domains, a plausible-sounding incorrect answer is a nuisance. In clinical settings, it can be dangerous. A doctor relying on AI-generated clinical decision support who cannot distinguish a hallucinated guideline from a real one is worse off than a doctor using no AI at all — at least without AI, uncertainty is explicit.</p>
+
+    <p>Retrieval-Augmented Generation (RAG) was supposed to solve this. Ground the model's responses in retrieved documents, and it cannot hallucinate facts that are not in those documents. In practice, standard RAG reduces hallucination significantly — but does not eliminate it. Models still synthesize across multiple documents in ways that introduce errors. They still occasionally ignore the retrieved evidence in favor of parametric memory. And they produce responses that sound equally confident whether the evidence is strong or weak.</p>
+
+    <p>Building ExplainRAG-FC-AS — a citation-grounded clinical decision support system — forced us to confront each of these failure modes directly.</p>
+
+    <h2>The Core Problem: Plausible Without Being Trustworthy</h2>
+
+    <p>The fundamental tension in clinical RAG is between <em>fluency</em> and <em>traceability</em>. LLMs are optimized for the former. Clinical settings demand the latter. A response that cannot be traced to a specific source document, with a specific confidence level, provides no basis for a clinician to evaluate its reliability.</p>
+
+    <p>We designed ExplainRAG-FC-AS around a single guiding principle that we call <strong>"No Source, No Result."</strong> Every claim in a system response must be attributable to a specific retrieved document. If the retrieval system cannot find relevant supporting evidence with sufficient confidence, the system declines to generate a response — and says so explicitly, explaining what it could not find.</p>
+
+    <div class="pull-quote">
+      <p>"A system that acknowledges uncertainty is more trustworthy than one that fills uncertainty with fluent fabrication. In clinical AI, the ability to say 'I don't know' is a feature, not a limitation."</p>
+    </div>
+
+    <h2>The Architecture: Three Layers of Evidence Grounding</h2>
+
+    <h3>Layer 1: Thematic Retrieval with K-Means Clustering</h3>
+
+    <p>Standard vector-search RAG retrieves the top-k most semantically similar documents to a query. In a large clinical knowledge base, this can surface documents that are individually relevant but thematically inconsistent — covering different aspects of a topic, different patient populations, or even contradictory guidelines from different clinical bodies.</p>
+
+    <p>We addressed this with a pre-retrieval clustering step. Before query time, we cluster the knowledge base using <strong>K-Means on sentence embeddings</strong>, grouping documents by thematic coherence. At query time, retrieval is performed within the most relevant cluster — ensuring that the documents surfaced are not just individually relevant but mutually coherent. This significantly improves the quality of the context window passed to the LLM, reducing the risk of the model synthesizing across contradictory sources.</p>
+
+    <figure class="article-fig">
+      <div class="fig-img">
+        <div class="fig-placeholder">
+          <span>ExplainRAG-FC-AS Architecture</span>
+          <span style="font-size:0.75rem;opacity:.6;">Thematic clustering → NLI fact-check → grounded generation</span>
+        </div>
+      </div>
+      <figcaption>The ExplainRAG-FC-AS pipeline: FAISS semantic search within K-Means thematic clusters, NLI fact-checking via RoBERTa-MNLI, and GPT-4 grounded generation with source attribution.</figcaption>
+    </figure>
+
+    <h3>Layer 2: NLI Fact-Checking Before Generation</h3>
+
+    <p>The second layer runs <strong>Natural Language Inference (NLI)</strong> on candidate responses before they are shown to users. We use RoBERTa-MNLI to evaluate each factual claim in a generated draft against the retrieved source documents. Claims that the NLI model classifies as contradicted by the sources are flagged and either removed or presented with an explicit uncertainty marker.</p>
+
+    <p>This is the key innovation that distinguishes our approach from standard RAG. Rather than trusting the LLM to faithfully represent the retrieved evidence, we independently verify that faithfulness using a separate model trained specifically for textual entailment. The two models serve different roles: GPT-4 for fluent generation, RoBERTa-MNLI for factual verification. Neither role is delegated to a single model.</p>
+
+    <h3>Layer 3: Source-Level Attribution</h3>
+
+    <p>Every sentence in the final response is linked to the specific source passage that supports it. The interface shows not just that a response is "grounded in retrieved evidence" but which specific document, section, and passage supports each claim. Clinicians can follow a link directly to the source — a clinical guideline, a journal article, an institutional protocol — and verify the claim themselves.</p>
+
+    <div class="callout">
+      <p><strong>Technical stack:</strong> FAISS for vector search, K-Means clustering for thematic coherence, RoBERTa-MNLI for fact verification, GPT-4 for generation, Streamlit for the clinical interface. Query time: under 10 seconds end-to-end, including NLI verification.</p>
+    </div>
+
+    <h2>Results: Clinician Validation</h2>
+
+    <div class="stat-callout">
+      <div class="sc-item"><span class="sc-num">&lt;10s</span><span class="sc-lbl">Query Time<br>End-to-End</span></div>
+      <div class="sc-item"><span class="sc-num">90%</span><span class="sc-lbl">Clinician<br>Preference</span></div>
+      <div class="sc-item"><span class="sc-num">0.85</span><span class="sc-lbl">Evidence<br>Confidence</span></div>
+    </div>
+
+    <p>We evaluated ExplainRAG-FC-AS in a blind comparison with a standard RAG baseline and a no-RAG LLM. Clinical evaluators — physicians and clinical researchers — were asked to assess the responses for accuracy, reliability, and trustworthiness without knowing which system generated each response.</p>
+
+    <p><strong>90% of evaluators preferred ExplainRAG-FC-AS</strong> responses over the alternatives. The primary driver was not accuracy per se — the standard RAG system also produced accurate responses much of the time — but <em>verifiability</em>. Clinicians reported that knowing they could trace each claim to a source changed how they felt about relying on the system. The ability to verify was itself a trust-building feature, even when verification was not performed.</p>
+
+    <h2>The Hard Part: Knowing When Not to Answer</h2>
+
+    <p>Implementing the "No Source, No Result" policy was the most technically and philosophically challenging aspect of the project. Every threshold we set for the confidence score required explicit decisions about what type of error was worse: false confidence (answering without sufficient evidence) or false refusal (declining to answer when evidence exists but is weak).</p>
+
+    <p>In clinical settings, we consistently chose to err toward false refusal. A system that says "I cannot find reliable evidence for this query — please consult a specialist" is more useful than one that generates a fluent but under-supported answer. This required extensive calibration of the retrieval confidence threshold and the NLI entailment threshold — and ongoing monitoring in deployment to detect cases where the system was refusing queries that clinicians judged it should be able to answer.</p>
+
+    <p>The lesson is that citation-first RAG is not just an architecture decision. It is a design philosophy that requires explicit choices about what the system will and will not do, and those choices must be validated with the clinical users who will depend on the system.</p>
+
+    <h2>What Comes Next</h2>
+
+    <p>At Solyntra, where I applied these principles to SaaS knowledge systems, we extended the architecture with metadata-aware ingestion — tagging documents with freshness, source authority, and clinical jurisdiction — and multi-agent orchestration for complex queries that require synthesizing evidence across multiple domains. The core principle remained constant: every response must be traceable, or the system declines to respond.</p>
+
+    <p>For clinical RAG to move from research prototype to deployable clinical tool, it needs robust audit trails, version control for knowledge bases, and integration with clinical workflow systems. The citation-first approach provides the foundation for all of these — because a system designed for traceability from the start is a system that can be audited, updated, and trusted.</p>
+
+    <div class="article-end">
+      <img src="../photos/dp.jpeg" alt="Nasim Mahmud Nayan" class="author-photo">
+      <div class="author-info">
+        <div class="author-name">Nasim Mahmud Nayan</div>
+        <div class="author-role">AI Engineer · Healthcare AI Researcher · Deputy Manager, AI &amp; ML at BRAC</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer">
+  <span>© 2026 Nasim Mahmud Nayan</span>
+  <span><span class="dot">●</span> Trustworthy · Healthcare · AI</span>
+  <a href="../index.html" style="color:var(--ink-3)">Back to portfolio →</a>
+</footer>
+</body>
+</html>

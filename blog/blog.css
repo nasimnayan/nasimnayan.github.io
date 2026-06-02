@@ -1,0 +1,141 @@
+/* ============================================================
+   Blog shared styles — Nasim Mahmud Nayan Portfolio
+   ============================================================ */
+.blog-header {
+  padding-top: 120px;
+  padding-bottom: clamp(40px, 6vw, 64px);
+  border-bottom: 1px solid var(--line);
+  max-width: 760px;
+}
+.blog-back {
+  font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-2); display: inline-flex; align-items: center; gap: 0.5rem;
+  margin-bottom: 2rem; transition: color .2s;
+}
+.blog-back:hover { color: var(--rust); }
+.blog-back::before { content: "←"; }
+.blog-kicker { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+.blog-title {
+  font-size: clamp(2rem, 5vw, 3.6rem); font-weight: 400; line-height: 1.08;
+  letter-spacing: -0.02em; margin-bottom: 1rem; max-width: 22ch;
+}
+.blog-meta {
+  font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3); margin-bottom: 1.8rem;
+}
+.blog-lede {
+  font-family: var(--serif); font-size: clamp(1.1rem, 2vw, 1.3rem);
+  color: var(--ink-2); line-height: 1.65; padding-top: 1.6rem; border-top: 1px solid var(--line);
+}
+.blog-body {
+  padding-block: clamp(48px, 8vw, 80px);
+  max-width: 720px;
+}
+.blog-body p {
+  font-family: var(--serif); font-size: clamp(1rem, 1.8vw, 1.12rem);
+  color: var(--ink-2); line-height: 1.85; margin-bottom: 1.6rem;
+}
+.blog-body h2 {
+  font-size: clamp(1.45rem, 3vw, 1.9rem); margin: 3rem 0 1rem; color: var(--ink);
+  border-bottom: 1px solid var(--line); padding-bottom: 0.7rem;
+}
+.blog-body h3 {
+  font-size: clamp(1.15rem, 2vw, 1.4rem); margin: 2.2rem 0 0.7rem; color: var(--ink);
+}
+.blog-body strong { color: var(--ink); font-weight: 600; }
+.blog-body em { color: var(--rust); font-style: italic; }
+.blog-body ul { margin: 0 0 1.6rem; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+.blog-body li {
+  position: relative; padding-left: 1.5rem; font-family: var(--serif);
+  font-size: clamp(1rem, 1.8vw, 1.1rem); color: var(--ink-2); line-height: 1.7;
+}
+.blog-body li::before {
+  content: ""; position: absolute; left: 0; top: 0.65em;
+  width: 6px; height: 6px; border: 1px solid var(--rust); border-radius: 50%;
+}
+
+/* Pull quote */
+.pull-quote {
+  border-left: 4px solid var(--rust); padding: 1.2rem 1.6rem; margin: 2.6rem 0;
+  background: var(--card); border-radius: 0 5px 5px 0;
+}
+.pull-quote p {
+  font-family: var(--serif); font-size: clamp(1.1rem, 2vw, 1.3rem); font-style: italic;
+  color: var(--ink); line-height: 1.55; margin: 0;
+}
+.pull-quote cite {
+  display: block; margin-top: 0.6rem;
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink-3); font-style: normal;
+}
+
+/* Stat callout row */
+.stat-callout {
+  display: flex; gap: 0; margin: 2.4rem 0;
+  border: 1px solid var(--line); border-radius: 5px; overflow: hidden;
+}
+.stat-callout .sc-item {
+  flex: 1; padding: 1.4rem 1rem; text-align: center;
+  border-right: 1px solid var(--line);
+}
+.stat-callout .sc-item:last-child { border-right: none; }
+.stat-callout .sc-num {
+  font-family: var(--serif); font-size: 2rem; color: var(--rust); line-height: 1; display: block;
+}
+.stat-callout .sc-lbl {
+  font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-3); margin-top: 0.4rem; display: block;
+}
+
+/* Article figure */
+.article-fig { margin: 2.6rem 0; }
+.fig-img {
+  width: 100%; border: 1px solid var(--line); border-radius: 5px;
+  overflow: hidden; margin-bottom: 0.7rem;
+}
+.fig-img img { width: 100%; display: block; object-fit: cover; }
+.fig-placeholder {
+  aspect-ratio: 16/9;
+  background: repeating-linear-gradient(135deg, var(--paper-2) 0 11px, var(--card) 11px 22px);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 0.5rem;
+  font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.article-fig figcaption {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink-3); text-align: center;
+}
+
+/* Callout box */
+.callout {
+  padding: 1.3rem 1.6rem; border: 1px solid var(--rust-wash);
+  background: var(--rust-wash); border-radius: 5px; margin: 2rem 0;
+}
+.callout p {
+  font-family: var(--sans); font-size: 0.94rem; color: var(--rust-2);
+  margin: 0; line-height: 1.6; font-style: normal;
+}
+.callout strong { color: var(--rust-2); }
+
+/* Code-style inline highlight */
+.code-inline {
+  font-family: var(--mono); font-size: 0.82em; background: var(--paper-2);
+  border: 1px solid var(--line); padding: 0.1em 0.35em; border-radius: 3px;
+  color: var(--ink);
+}
+
+/* Article end / author */
+.article-end {
+  margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--line);
+  display: flex; align-items: center; gap: 1.2rem;
+}
+.author-photo {
+  width: 52px; height: 52px; border-radius: 50%; object-fit: cover;
+  border: 1px solid var(--line); flex-shrink: 0;
+}
+.author-info .author-name { font-weight: 600; font-size: 1rem; margin-bottom: 0.2rem; }
+.author-info .author-role {
+  font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ink-3);
+}

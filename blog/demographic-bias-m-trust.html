@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mitigating Demographic Bias in Clinical Models: Lessons from M-TRUST — Nasim Mahmud Nayan</title>
+<meta name="description" content="Reducing demographic bias by 30.8% without sacrificing performance — across demographic, annotation, and amplification axes." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/styles.css?v=4" />
+<link rel="stylesheet" href="blog.css" />
+</head>
+<body>
+<nav class="nav scrolled" id="nav">
+  <a href="../index.html" class="brand"><span class="dot"></span>Nasim&nbsp;M.&nbsp;Nayan</a>
+  <div class="links" id="navlinks">
+    <a href="../index.html#about">About</a>
+    <a href="../index.html#publications">Publications</a>
+    <a href="../index.html#research">Research</a>
+    <a href="../index.html#projects">Projects</a>
+    <a href="../index.html#industry">Industry</a>
+    <a href="../index.html#skills">Skills</a>
+    <a href="../index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="blog-header">
+    <a href="../index.html#writing" class="blog-back">Back to Writing</a>
+    <div class="blog-kicker">
+      <span class="chip chip-fill">Fairness ML</span>
+      <span class="chip chip-fill">Open Source</span>
+      <span class="chip chip-fill">Healthcare</span>
+    </div>
+    <h1 class="blog-title">Mitigating Demographic Bias in Clinical Models: Lessons from M-TRUST</h1>
+    <div class="blog-meta">Mar 2026 · 8 min read · Nasim Mahmud Nayan</div>
+    <p class="blog-lede">Building M-TRUST taught me that bias in clinical AI is not a single problem — it is four overlapping problems that require different detection methods and different mitigations. Here is what we learned, and how we reduced demographic bias by 30.8% without sacrificing model performance.</p>
+  </div>
+
+  <div class="blog-body">
+
+    <p>When we started building the M-TRUST toolkit, the goal was straightforward: make it easier for clinical AI practitioners to detect and mitigate bias in their models. What we discovered during development was more complicated. Bias in medical AI is not a single phenomenon that a single technique can fix. It manifests in at least four distinct ways, each requiring a different lens to detect and a different approach to correct.</p>
+
+    <p>This post documents the design decisions behind M-TRUST — the Medical-domain TRUSTworthy AI toolkit — and the lessons we learned from applying it to real clinical datasets.</p>
+
+    <h2>Why Clinical AI Is Uniquely Vulnerable to Bias</h2>
+
+    <p>Medical datasets carry the fingerprints of historical healthcare inequities. Consider how clinical data is collected: patients must have access to a hospital. They must receive a diagnosis, which requires a clinician to look for the condition in the first place. The resulting data over-represents populations that have historically had better access to healthcare, and under-represents populations — rural, low-income, minority — who face systemic barriers.</p>
+
+    <p>A model trained on such data learns patterns from a biased sample. When deployed to serve the broader population, it encounters distribution shift: the patients it sees are not like the patients it learned from. The result is not random error — it is <em>systematic</em> error that consistently disadvantages already-underserved groups.</p>
+
+    <div class="pull-quote">
+      <p>"Bias in clinical AI is not the exception. It is the default outcome when bias-aware design is absent from the development process."</p>
+    </div>
+
+    <h2>The Four Axes of Bias in M-TRUST</h2>
+
+    <p>After reviewing the literature and working across multiple clinical datasets — maternal health records, diabetes registries, Parkinson's assessments, and chest imaging — we identified four distinct axes along which bias enters clinical AI systems.</p>
+
+    <h3>Axis 1: Demographic Bias</h3>
+    <p>The most discussed form: a model performs significantly better for some demographic groups than others. In our maternal health work, we observed accuracy disparities of up to 34% between demographic subgroups in models trained without fairness interventions. Detecting demographic bias requires stratified evaluation — measuring sensitivity, specificity, positive predictive value, and AUC separately for each subgroup, rather than only in aggregate.</p>
+
+    <h3>Axis 2: Annotation Bias</h3>
+    <p>Clinical labels are assigned by humans — and human annotators bring their own biases. Studies have shown that pain is systematically under-assessed in certain patient populations. Diagnostic labels assigned by less experienced clinicians or under time pressure carry higher error rates. Annotation bias is particularly insidious because it is invisible in standard accuracy metrics: the model learns to reproduce human errors rather than to correct them.</p>
+
+    <figure class="article-fig">
+      <div class="fig-img">
+        <div class="fig-placeholder">
+          <span>The Four Axes of Bias in M-TRUST</span>
+          <span style="font-size:0.75rem;opacity:.6;">Demographic · Annotation · Quality · Amplification</span>
+        </div>
+      </div>
+      <figcaption>M-TRUST addresses bias at four distinct entry points in the clinical AI development pipeline.</figcaption>
+    </figure>
+
+    <h3>Axis 3: Data Quality Bias</h3>
+    <p>Data quality varies systematically across patient subgroups. Missing values are not random — certain demographic groups are more likely to have incomplete records due to fragmented care pathways, limited primary care engagement, or inconsistent documentation practices. When a model imputes or drops missing values without accounting for this, it effectively assumes the data is missing at random, which it is not. Quality bias also includes systematic measurement error: a blood pressure reading taken under different conditions has different reliability.</p>
+
+    <h3>Axis 4: Amplification Bias</h3>
+    <p>Even a small bias in the input data can be amplified exponentially by the model training process. Deep learning models in particular are capable of learning spurious correlations that encode demographic proxies — zip code as a proxy for race, writing style as a proxy for education level. These correlations may improve training-time performance while encoding discrimination that becomes apparent only when the model is evaluated on fairness metrics. In our multimodal chest X-ray work, we measured a <strong>4.3× amplification factor</strong> — biases present at a low level in the input data were magnified dramatically in the model's predictions.</p>
+
+    <div class="stat-callout">
+      <div class="sc-item"><span class="sc-num">4</span><span class="sc-lbl">Bias Axes<br>Covered</span></div>
+      <div class="sc-item"><span class="sc-num">30.8%</span><span class="sc-lbl">Bias<br>Reduced</span></div>
+      <div class="sc-item"><span class="sc-num">4.3×</span><span class="sc-lbl">Amplification<br>Measured</span></div>
+    </div>
+
+    <h2>How M-TRUST Works</h2>
+
+    <p>M-TRUST is designed as a plug-in wrapper for existing PyTorch and Scikit-learn pipelines. The goal was to make bias-aware training accessible to practitioners who are not fairness researchers — the API should be simple enough to use without reading a paper on algorithmic fairness.</p>
+
+    <p>The detection layer runs stratified evaluation across all four axes during validation. For each axis, it computes a bias score — a normalized measure of disparity — and flags components of the pipeline that contribute most to that disparity.</p>
+
+    <p>The mitigation layer offers a menu of interventions that can be applied modularly:</p>
+
+    <ul>
+      <li><strong>Resampling</strong> (SMOTE, Near-Miss) for class and demographic imbalance</li>
+      <li><strong>Re-weighting</strong> — assigning higher loss weights to underrepresented groups during training</li>
+      <li><strong>Adversarial debiasing</strong> — training a secondary network to prevent the primary model from encoding demographic proxies</li>
+      <li><strong>Calibration</strong> — post-hoc correction of confidence scores to equalize calibration error across subgroups</li>
+      <li><strong>Label smoothing</strong> for annotation bias mitigation</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Design principle:</strong> No single mitigation technique works across all four axes. M-TRUST's modular design lets practitioners apply the right intervention for the detected bias type, rather than applying a blanket correction that may not address the root cause — or that may introduce new disparities while correcting others.</p>
+    </div>
+
+    <h2>Results: 30.8% Bias Reduction Without Performance Loss</h2>
+
+    <p>Across the clinical datasets we tested, M-TRUST reduced demographic bias by an average of <strong>30.8%</strong>, measured as the reduction in the maximum disparity across subgroups on the primary performance metric. Critically, this did not require sacrificing model accuracy — in most cases, the overall AUC remained stable or improved slightly, because the interventions also addressed underlying data quality issues that had been hurting aggregate performance.</p>
+
+    <p>The multimodal chest X-ray experiment was particularly revealing. Before applying M-TRUST, the model showed a 7.6% performance disparity between the highest and lowest-performing demographic subgroups. After applying demographic-aware resampling and adversarial debiasing, that disparity dropped to 4.5% — a 41% reduction in the performance gap, while maintaining overall classification performance across 14 thoracic diseases.</p>
+
+    <h2>What We Are Still Learning</h2>
+
+    <p>Building M-TRUST made clear how much remains unsolved. Bias mitigation involves genuine trade-offs: reducing disparity for one subgroup sometimes increases it for another. The choice of fairness metric matters enormously — equalized odds, demographic parity, and individual fairness can be mutually incompatible. And the definition of a "demographic group" is itself contested: age, gender, race, socioeconomic status, and geography each capture different dimensions of vulnerability.</p>
+
+    <p>The current focus for M-TRUST is expanding dataset coverage — incorporating more clinical domains and more diverse patient populations — and adding support for intersectional fairness: evaluating and mitigating bias for patients who belong to multiple underserved groups simultaneously, where disparities tend to compound.</p>
+
+    <p>The toolkit is open source. If you are working on clinical AI and want to evaluate your model for bias — or contribute to the framework — I would love to hear from you.</p>
+
+    <div class="article-end">
+      <img src="../photos/dp.jpeg" alt="Nasim Mahmud Nayan" class="author-photo">
+      <div class="author-info">
+        <div class="author-name">Nasim Mahmud Nayan</div>
+        <div class="author-role">AI Engineer · Healthcare AI Researcher · Deputy Manager, AI &amp; ML at BRAC</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer">
+  <span>© 2026 Nasim Mahmud Nayan</span>
+  <span><span class="dot">●</span> Trustworthy · Healthcare · AI</span>
+  <a href="../index.html" style="color:var(--ink-3)">Back to portfolio →</a>
+</footer>
+</body>
+</html>

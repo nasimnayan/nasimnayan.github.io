@@ -1,0 +1,21 @@
+# Claude Code internals — never commit
+.claude/
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Legacy / artifact files
+image-slot.js
+
+# Misc
+*.log
