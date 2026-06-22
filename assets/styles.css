@@ -246,7 +246,7 @@ section { position: relative; }
 .hero-photo .profile-img {
   width: 100%;
   aspect-ratio: 4/5;
-  border: 1px solid var(--line);
+  border: none; /* Removed the border */
   border-radius: 6px;
   object-fit: cover;
   display: block;
